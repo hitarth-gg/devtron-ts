@@ -1,0 +1,93 @@
+{
+  "name": "@electron/devtron",
+  "version": "0.0.0-development",
+  "description": "Electron DevTools Extension to track IPC events",
+  "exports": {
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./monitorRenderer": {
+      "import": "./dist/mjs/lib/electron-renderer-tracker.js",
+      "require": "./dist/cjs/lib/electron-renderer-tracker.js",
+      "types": "./dist/cjs/types/electron-renderer-tracker.js"
+    },
+    "./monitorMain": {
+      "import": "./dist/mjs/lib/electron-main-tracker.js",
+      "require": "./dist/cjs/lib/electron-main-tracker.js",
+      "types": "./dist/cjs/types/electron-main-tracker.js"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:browser": "webpack --config webpack.extension.config.ts",
+    "build:node": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
+    "build:folders": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
+    "build": "npm run clean && npm run build:node && npm run build:browser",
+    "dev": "webpack serve --config webpack.dev.config.ts"
+  },
+  "author": "Hitarth Rajput",
+  "license": "MIT",
+  "keywords": [
+    "Electron",
+    "Chrome",
+    "Chromium",
+    "devtools",
+    "developer tools",
+    "ipc"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@types/chrome": "^0.0.326",
+    "@types/node": "^24.0.1",
+    "@types/webpack-env": "^1.18.8",
+    "autoprefixer": "^10.4.21",
+    "copy-webpack-plugin": "^13.0.0",
+    "css-loader": "^7.1.2",
+    "electron": "^36.4.0",
+    "eslint": "^9.28.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint-plugin-unicorn": "^59.0.1",
+    "globals": "^16.2.0",
+    "html-webpack-plugin": "^5.6.3",
+    "postcss": "^8.5.4",
+    "postcss-loader": "^8.1.1",
+    "postcss-preset-env": "^10.2.1",
+    "rimraf": "^6.0.1",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^3.4.17",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.34.0",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6"
+  },
+  "dependencies": {
+    "@fontsource-variable/roboto": "^5.2.5",
+    "@fontsource/space-mono": "^5.2.5",
+    "@microlink/react-json-view": "^1.26.2",
+    "@tailwindcss/postcss": "^4.1.8",
+    "ag-grid-community": "^33.3.2",
+    "ag-grid-react": "^33.3.2",
+    "denque": "^2.1.0",
+    "lucide-react": "^0.513.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "files": [
+    "dist/",
+    "package.json",
+    "LICENSE",
+    "README.md",
+    "!**/*.tsbuildinfo"
+  ]
+}
