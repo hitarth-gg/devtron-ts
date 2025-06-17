@@ -35,7 +35,6 @@ function handlePanelMessage(message: MessagePanel): void {
       connections.panel?.postMessage({ type: MSG_TYPE.PONG }); // (mimics `port.postMessage(...)`)
       break;
     case MSG_TYPE.KEEP_ALIVE:
-      connections.panel?.postMessage({ type: MSG_TYPE.KEEP_ALIVE }); // This message is not received anywhere, it can be removed: #REMOVE
       break;
     case MSG_TYPE.GET_ALL_EVENTS:
       for (let i = 0; i < ipcEvents.length; i++) {
@@ -55,23 +54,24 @@ function handlePanelMessage(message: MessagePanel): void {
   }
 }
 
-function handleContentMessage(message: MessageContentScript): void {
-  function addIpcEvent(event: IpcEventData): void {
-    const last = ipcEvents.get(ipcEvents.length - 1);
-    const newEvent: IpcEventDataIndexed = {
-      serialNumber: (last?.serialNumber ?? 0) + 1,
-      ...event,
-    };
-    ipcEvents.push(newEvent);
-    /* Remove the oldest event if the length exceeds MAX_EVENTS */
-    if (ipcEvents.length > MAX_EVENTS) ipcEvents.shift();
-    if (connections.panel) {
-      connections.panel.postMessage({
-        type: MSG_TYPE.RENDER_EVENT,
-        event: newEvent,
-      });
-    }
+function addIpcEvent(event: IpcEventData): void {
+  const last = ipcEvents.get(ipcEvents.length - 1);
+  const newEvent: IpcEventDataIndexed = {
+    serialNumber: (last?.serialNumber ?? 0) + 1,
+    ...event,
+  };
+  ipcEvents.push(newEvent);
+  /* Remove the oldest event if the length exceeds MAX_EVENTS */
+  if (ipcEvents.length > MAX_EVENTS) ipcEvents.shift();
+  if (connections.panel) {
+    connections.panel.postMessage({
+      type: MSG_TYPE.RENDER_EVENT,
+      event: newEvent,
+    });
   }
+}
+
+function handleContentMessage(message: MessageContentScript): void {
   switch (message.type) {
     case MSG_TYPE.ADD_IPC_EVENT:
       addIpcEvent(message.event);
@@ -88,14 +88,18 @@ function handleContentMessage(message: MessageContentScript): void {
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === PORT_NAME.PANEL) {
     connections.panel = port;
-    port.onMessage.addListener((message) => handlePanelMessage(message));
+    port.onMessage.addListener((message: MessagePanel) =>
+      handlePanelMessage(message)
+    );
     port.onDisconnect.addListener(() => {
       console.warn('Devtron - Background script: Panel disconnected'); // #EDIT: Add better logging
       connections.panel = null;
     });
   } else if (port.name === PORT_NAME.CONTENT_SCRIPT) {
     connections.contentScript = port;
-    port.onMessage.addListener((message) => handleContentMessage(message));
+    port.onMessage.addListener((message: MessageContentScript) =>
+      handleContentMessage(message)
+    );
     port.onDisconnect.addListener(() => {
       console.log('Devtron - Background script: Content script disconnected'); // #EDIT: Add better logging
       connections.contentScript = null;

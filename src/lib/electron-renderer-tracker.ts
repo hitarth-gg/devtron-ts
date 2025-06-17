@@ -1,4 +1,5 @@
-import { ipcRenderer, IpcRendererEvent } from 'electron';
+import type { IpcRendererEvent } from 'electron';
+import { ipcRenderer } from 'electron';
 import { MSG_TYPE } from '../common/constants';
 
 type Direction = 'renderer-to-main' | 'main-to-renderer';
@@ -78,6 +79,8 @@ function copyArgs(args: any[]): any[] {
   try {
     return structuredClone(args);
   } catch (err: any) {
-    return [`[Could not clone args: ${err.message}]`];
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error(`Error cloning args: ${message}`);
+    return [`[Could not clone args: ${message}]`];
   }
 }

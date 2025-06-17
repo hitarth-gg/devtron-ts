@@ -4,21 +4,12 @@
  * It is required in the main process of the Electron app.
  */
 
-import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
+import type { IpcMain, IpcMainEvent, IpcMainInvokeEvent } from 'electron';
+import type { Direction, IpcEventData } from '../types/shared';
 import { ipcMain, webContents } from 'electron';
 import { MSG_TYPE } from '../common/constants';
-import type { Direction, IpcEventData } from '../types/shared';
 
 export function monitorMain() {
-  // function trackIpcEvent(direction, channel, args, senderId) {
-  //   const eventData = {
-  //     direction,
-  //     channel,
-  //     args,
-  //     senderId,
-  //     timestamp: Date.now(),
-  //   };
-
   function trackIpcEvent(direction: Direction, channel: string, args: any[]) {
     const eventData: IpcEventData = {
       direction,
@@ -33,7 +24,6 @@ export function monitorMain() {
      * We send event to renderer process, which then sends it to the devtools.
      */
     webContents.getAllWebContents().forEach((wc) => {
-      // #EDIT: try with first element
       wc.send(MSG_TYPE.RENDER_EVENT, eventData);
     });
   }
@@ -43,7 +33,7 @@ export function monitorMain() {
   ipcMain.on = function (
     channel: string,
     listener: (event: IpcMainEvent, ...args: any[]) => void
-  ): typeof ipcMain {
+  ): IpcMain {
     return originalOn(channel, (event, ...args) => {
       trackIpcEvent('renderer-to-main', channel, args);
       listener(event, ...args);
@@ -55,7 +45,7 @@ export function monitorMain() {
   ipcMain.once = function (
     channel: string,
     listener: (event: IpcMainEvent, ...args: any[]) => void
-  ): typeof ipcMain {
+  ): IpcMain {
     return originalOnce(channel, (event, ...args) => {
       trackIpcEvent('renderer-to-main', channel, args);
       listener(event, ...args);

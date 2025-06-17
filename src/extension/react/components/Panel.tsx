@@ -28,6 +28,7 @@ ModuleRegistry.registerModules([
 ]);
 
 function Panel() {
+  const MAX_EVENTS_TO_DISPLAY = 1000;
   const [events, setEvents] = useState<IpcEventDataIndexed[]>([]);
   const portRef = useRef<chrome.runtime.Port | null>(null);
   const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,30 +53,37 @@ function Panel() {
       console.log('Devtron - Panel disconnected');
     });
 
-    port.onMessage.addListener((message) => {
+    const onMessage = (message: MessagePanel): void => {
       if (message.type === MSG_TYPE.RENDER_EVENT) {
-        setEvents((prev) => [...prev, message.event]);
+        setEvents((prev) =>
+          [...prev, message.event].slice(-MAX_EVENTS_TO_DISPLAY)
+        );
       }
       if (message.type === MSG_TYPE.PONG) {
-        // Do nothing // #EDIT #REMOVE
+        // Do nothing // #EDIT or #REMOVE
       }
-    });
+    };
+
+    port.onMessage.addListener(onMessage);
 
     clearEventsRef.current = () => {
       try {
-        const message: MessagePanel = { type: MSG_TYPE.CLEAR_EVENTS };
-        port.postMessage(message);
+        port.postMessage({
+          type: MSG_TYPE.CLEAR_EVENTS,
+        } satisfies MessagePanel);
         setEvents([]);
       } catch (error) {
         console.error('Devtron - Error clearing events:', error);
       }
     };
 
-    port.postMessage({ type: MSG_TYPE.GET_ALL_EVENTS });
+    port.postMessage({ type: MSG_TYPE.GET_ALL_EVENTS } satisfies MessagePanel);
 
     return () => {
       if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
-
+      port.onMessage.removeListener(onMessage);
+      portRef.current = null;
+      clearEventsRef.current = () => {};
       if (port) {
         port.disconnect();
       }
@@ -107,7 +115,7 @@ function Panel() {
         cellClass: 'flex !p-1 items-center h-full text-xs',
       },
       {
-        headerName: 'Method',
+        headerName: 'Direction',
         field: 'direction',
         width: 85,
         cellRenderer: (params: ICellRendererParams<IpcEventDataIndexed>) => {

@@ -1,4 +1,5 @@
 import { PORT_NAME, MSG_TYPE } from '../../common/constants';
+import type { MessageContentScript } from '../../types/shared';
 
 let port: chrome.runtime.Port | null = null;
 function ensurePort() {
@@ -14,7 +15,9 @@ function startKeepAlivePing() {
   setInterval(() => {
     ensurePort();
     if (port) {
-      port.postMessage({ type: MSG_TYPE.KEEP_ALIVE });
+      port.postMessage({
+        type: MSG_TYPE.KEEP_ALIVE,
+      } satisfies MessageContentScript);
     }
   }, 10 * 1000); // 10 seconds
 }
@@ -22,12 +25,17 @@ function startKeepAlivePing() {
 // Start the keep-alive ping
 startKeepAlivePing();
 
-window.addEventListener('message', (event) => {
-  if (event.source !== window || event.data.source !== MSG_TYPE.SEND_TO_PANEL)
-    return;
-
-  ensurePort();
-  if (port) {
-    port.postMessage({ type: MSG_TYPE.ADD_IPC_EVENT, event: event.data.event });
-  }
-});
+if (!(window as any).__DEVTRON_CONTENT_SCRIPT_MSG_LISTENER__) {
+  window.addEventListener('message', (event) => {
+    if (event.source !== window || event.data.source !== MSG_TYPE.SEND_TO_PANEL)
+      return;
+    ensurePort();
+    if (port) {
+      port.postMessage({
+        type: MSG_TYPE.ADD_IPC_EVENT,
+        event: event.data.event,
+      } satisfies MessageContentScript);
+    }
+  });
+  (window as any).__DEVTRON_CONTENT_SCRIPT_MSG_LISTENER__ = true;
+}

@@ -13,18 +13,23 @@ async function install(): Promise<void> {
     return;
   }
 
-  const devtronPath = path.resolve('node_modules', '@electron', 'devtron');
-  const distPath = path.join(devtronPath, 'dist', 'extension');
   try {
+    const devtronPath = path.resolve('node_modules', '@electron', 'devtron');
+    const distPath = path.join(devtronPath, 'dist', 'extension');
     const ext = await session.defaultSession.extensions.loadExtension(
       distPath,
       {
         allowFileAccess: true,
       }
     );
-    console.log(`Installed extension: ${ext.name}`);
+    console.log(`Successfully Installed extension: ${ext.name}`);
   } catch (e) {
     console.error('Failed to load devtron: ', e);
+    if (e instanceof Error) {
+      throw new Error(`Failed to load devtron extension: ${e.message}`);
+    } else {
+      throw new Error('Failed to load devtron extension: Unknown error');
+    }
   }
 }
 

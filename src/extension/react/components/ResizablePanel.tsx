@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
-function ResizablePanel({ children, isOpen }: { children: React.ReactNode; isOpen: boolean }) {
+function ResizablePanel({
+  children,
+  isOpen,
+}: {
+  children: React.ReactNode;
+  isOpen: boolean;
+}) {
   const [isResizing, setIsResizing] = useState(false);
   const [width, setWidth] = useState(500);
 
@@ -18,7 +24,7 @@ function ResizablePanel({ children, isOpen }: { children: React.ReactNode; isOpe
         setWidth(newWidth);
       }
     },
-    [isResizing],
+    [isResizing]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -43,8 +49,9 @@ function ResizablePanel({ children, isOpen }: { children: React.ReactNode; isOpe
       {/* Resize handle */}
       <div
         onMouseDown={handleMouseDown}
-        className={`w-1 cursor-col-resize transition-colors ${isResizing ? 'bg-blue-500' : 'hover:bg-gray-400'
-          }`}
+        className={`w-1 cursor-col-resize transition-colors ${
+          isResizing ? 'bg-blue-500' : 'hover:bg-gray-400'
+        }`}
       />
       {/* Children */}
       <div style={{ width: `${width}px` }} className="h-full">

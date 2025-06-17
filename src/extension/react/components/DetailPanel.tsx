@@ -35,14 +35,12 @@ function DetailPanel({ selectedRow, onClose }: Props) {
         {/* Time */}
         <div className="mb-2">
           <span className="text-gray-600">Time: </span>
-          <span className="font-mono">
-            {timestamp}
-          </span>
+          <span className="font-mono">{timestamp}</span>
         </div>
 
-        {/* Method */}
+        {/* Direction */}
         <div className="mb-3 w-fit flex items-center gap-x-1">
-          <span className="text-gray-600">Method: </span>
+          <span className="text-gray-600">Direction: </span>
           <DirectionBadge direction={selectedRow.direction} />
         </div>
 

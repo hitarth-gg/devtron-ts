@@ -15,7 +15,4 @@ const MSG_TYPE = {
   SEND_TO_PANEL: 'send-to-panel',
 } as const;
 
-export type PortName = (typeof PORT_NAME)[keyof typeof PORT_NAME];
-export type MsgType = (typeof MSG_TYPE)[keyof typeof MSG_TYPE];
-
 export { PORT_NAME, MSG_TYPE };

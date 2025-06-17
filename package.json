@@ -8,15 +8,15 @@
       "require": "./dist/cjs/index.js",
       "types": "./dist/types/index.d.ts"
     },
-    "./monitorRenderer": {
-      "import": "./dist/mjs/lib/electron-renderer-tracker.js",
-      "require": "./dist/cjs/lib/electron-renderer-tracker.js",
-      "types": "./dist/cjs/types/electron-renderer-tracker.js"
-    },
     "./monitorMain": {
       "import": "./dist/mjs/lib/electron-main-tracker.js",
       "require": "./dist/cjs/lib/electron-main-tracker.js",
-      "types": "./dist/cjs/types/electron-main-tracker.js"
+      "types": "./dist/types/lib/electron-main-tracker.d.ts"
+    },
+    "./monitorRenderer": {
+      "import": "./dist/mjs/lib/electron-renderer-tracker.js",
+      "require": "./dist/cjs/lib/electron-renderer-tracker.js",
+      "types": "./dist/types/lib/electron-renderer-tracker.d.ts"
     }
   },
   "scripts": {
