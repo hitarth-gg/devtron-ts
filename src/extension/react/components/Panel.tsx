@@ -31,12 +31,12 @@ function Panel() {
   const [events, setEvents] = useState<IpcEventDataIndexed[]>([]);
   const portRef = useRef<chrome.runtime.Port | null>(null);
   const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const clearEventsRef = useRef(() => { });
+  const clearEventsRef = useRef(() => {});
+
   /**
    * Comment out the useEffect below if you want to test the UI in dev mode on localhost
    * and use JSON data from test_data/test_data.js for testing.
    */
-
   useEffect(() => {
     const port = chrome.runtime.connect({ name: PORT_NAME.PANEL });
     portRef.current = port;
@@ -82,7 +82,9 @@ function Panel() {
     };
   }, []);
 
-  const [selectedRow, setSelectedRow] = useState<IpcEventDataIndexed | null>(null);
+  const [selectedRow, setSelectedRow] = useState<IpcEventDataIndexed | null>(
+    null
+  );
   const [showDetailPanel, setShowDetailPanel] = useState<boolean>(false);
 
   const columnDefs: ColDef<IpcEventDataIndexed>[] = useMemo(

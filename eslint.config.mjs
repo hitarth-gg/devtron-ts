@@ -61,12 +61,15 @@ import tseslint from 'typescript-eslint';
 import globals from 'globals';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   react.configs.flat.recommended,
   react.configs.flat['jsx-runtime'],
+  reactHooks.configs['recommended-latest'],
+
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     plugins: {
