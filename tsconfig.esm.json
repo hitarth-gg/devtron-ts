@@ -5,7 +5,6 @@
     "module": "esnext",
     "declaration": false
   },
-    "include": ["src/index.ts", "src/lib/**/*", ],
+  "include": ["src/index.ts", "src/lib/**/*"],
   "exclude": []
-
 }
