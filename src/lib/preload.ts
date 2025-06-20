@@ -1,12 +1,31 @@
+// import { contextBridge, ipcRenderer } from 'electron';
+// console.log('Inside background preload script');
+
+// ipcRenderer.on('devtron-render-event', (event, data) => {
+//   console.log(`Received event in preload script: ${data.direction} - ${data.channel}`);
+//   contextBridge.executeInMainWorld({
+//     func: (data) => {
+//       // @ts-ignore
+//       logSomeInfo(data);
+//     },
+//     args: [data.direction],
+//   });
+// });
+
+/* ------------------------------------------------------ */
 import { contextBridge, ipcRenderer } from 'electron';
-console.log('Preload script for Devtron is running');
-ipcRenderer.removeAllListeners('devtron-render-event');
+console.log('Inside background preload script');
 
 ipcRenderer.on('devtron-render-event', (event, data) => {
   console.log(`Received event in preload script: ${data.direction} - ${data.channel}`);
   contextBridge.executeInMainWorld({
+    // func: (data) => {
+    // logSomeInfo(data.direction);
+    // },
+    // args: [data.direction],
+
     func: (data) => {
-      // @ts-expect-error: `addIpcEvent` is a function defined in background service worker
+      // @ts-ignore
       addIpcEvent(data);
     },
     args: [data],
