@@ -9,29 +9,27 @@ function ensurePort() {
       console.warn('Devtron - Content script: Port disconnected');
       port = null;
     });
-  }
-  else{
+  } else {
     console.warn('Devtron - Content script: Port already exists');
   }
 }
-function startKeepAlivePing() {
-  setInterval(() => {
-    ensurePort();
-    if (port) {
-      port.postMessage({
-        type: MSG_TYPE.KEEP_ALIVE,
-      } satisfies MessageContentScript);
-    }
-  }, 10 * 1000); // 10 seconds
-}
+// function startKeepAlivePing() {
+//   setInterval(() => {
+//     ensurePort();
+//     if (port) {
+//       port.postMessage({
+//         type: MSG_TYPE.KEEP_ALIVE,
+//       } satisfies MessageContentScript);
+//     }
+//   }, 10 * 1000); // 10 seconds
+// }
 
-// Start the keep-alive ping
-startKeepAlivePing();
+// // Start the keep-alive ping
+// startKeepAlivePing();
 
 if (!(window as any).__DEVTRON_CONTENT_SCRIPT_MSG_LISTENER__) {
   window.addEventListener('message', (event) => {
-    if (event.source !== window || event.data.source !== MSG_TYPE.SEND_TO_PANEL)
-      return;
+    if (event.source !== window || event.data.source !== MSG_TYPE.SEND_TO_PANEL) return;
     ensurePort();
     if (port) {
       port.postMessage({

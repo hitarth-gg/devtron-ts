@@ -21,17 +21,13 @@ import DirectionBadge from './DirectionBadge';
 import formatTimestamp from '../utils/formatTimestamp';
 import DetailPanel from './DetailPanel';
 
-ModuleRegistry.registerModules([
-  ClientSideRowModelModule,
-  RowSelectionModule,
-  CellStyleModule,
-]);
+ModuleRegistry.registerModules([ClientSideRowModelModule, RowSelectionModule, CellStyleModule]);
 
 function Panel() {
   const MAX_EVENTS_TO_DISPLAY = 1000;
   const [events, setEvents] = useState<IpcEventDataIndexed[]>([]);
   const portRef = useRef<chrome.runtime.Port | null>(null);
-  const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const clearEventsRef = useRef(() => {});
 
   /**
@@ -42,23 +38,21 @@ function Panel() {
     const port = chrome.runtime.connect({ name: PORT_NAME.PANEL });
     portRef.current = port;
 
-    const pingInterval = setInterval(() => {
-      port.postMessage({ type: MSG_TYPE.KEEP_ALIVE });
-    }, 10 * 1000);
+    // const pingInterval = setInterval(() => {
+    //   port.postMessage({ type: MSG_TYPE.KEEP_ALIVE });
+    // }, 10 * 1000);
 
-    pingIntervalRef.current = pingInterval;
+    // pingIntervalRef.current = pingInterval;
 
     port.onDisconnect.addListener(() => {
-      if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
+      // if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
       console.log('Devtron - Panel disconnected');
     });
 
     const onMessage = (message: MessagePanel): void => {
-      console.log( `Devtron - Panel received message: ${JSON.stringify(message)}` );
+      console.log(`Devtron - Panel received message: ${JSON.stringify(message)}`);
       if (message.type === MSG_TYPE.RENDER_EVENT) {
-        setEvents((prev) =>
-          [...prev, message.event].slice(-MAX_EVENTS_TO_DISPLAY)
-        );
+        setEvents((prev) => [...prev, message.event].slice(-MAX_EVENTS_TO_DISPLAY));
       }
       if (message.type === MSG_TYPE.PONG) {
         // Do nothing // #EDIT or #REMOVE
@@ -81,7 +75,7 @@ function Panel() {
     port.postMessage({ type: MSG_TYPE.GET_ALL_EVENTS } satisfies MessagePanel);
 
     return () => {
-      if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
+      // if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
       port.onMessage.removeListener(onMessage);
       portRef.current = null;
       clearEventsRef.current = () => {};
@@ -91,9 +85,7 @@ function Panel() {
     };
   }, []);
 
-  const [selectedRow, setSelectedRow] = useState<IpcEventDataIndexed | null>(
-    null
-  );
+  const [selectedRow, setSelectedRow] = useState<IpcEventDataIndexed | null>(null);
   const [showDetailPanel, setShowDetailPanel] = useState<boolean>(false);
 
   const columnDefs: ColDef<IpcEventDataIndexed>[] = useMemo(
@@ -108,9 +100,7 @@ function Panel() {
         headerName: 'Time',
         field: 'timestamp',
         width: 120,
-        valueFormatter: (
-          params: ValueFormatterParams<IpcEventDataIndexed, any>
-        ) => {
+        valueFormatter: (params: ValueFormatterParams<IpcEventDataIndexed, any>) => {
           return formatTimestamp(params.value);
         },
         cellClass: 'flex !p-1 items-center h-full text-xs',
@@ -136,12 +126,9 @@ function Panel() {
         flex: 3,
         cellRenderer: (params: ICellRendererParams<IpcEventDataIndexed>) => {
           const jsonStr = JSON.stringify(params.value);
-          const preview =
-            jsonStr.length > 120 ? jsonStr.slice(0, 120) + '...' : jsonStr;
+          const preview = jsonStr.length > 120 ? jsonStr.slice(0, 120) + '...' : jsonStr;
           return (
-            <span className="text-xs font-space-mono text-gray-600 truncate block">
-              {preview}
-            </span>
+            <span className="text-xs font-space-mono text-gray-600 truncate block">{preview}</span>
           );
         },
         cellClass: 'flex !p-1 items-center h-full',
@@ -171,9 +158,7 @@ function Panel() {
 
   return (
     <div className="h-screen w-full flex border border-gray-300 rounded overflow-hidden bg-white">
-      <div
-        className={`flex-1 flex flex-col ${showDetailPanel ? 'min-w-96' : ''}`}
-      >
+      <div className={`flex-1 flex flex-col ${showDetailPanel ? 'min-w-96' : ''}`}>
         {/* Header */}
         <div className="px-3 py-2 bg-gray-100 border-b border-gray-300 justify-between text-sm font-medium flex items-center gap-2">
           <div className="">Devtron</div>
@@ -209,10 +194,7 @@ function Panel() {
 
       {/* Details panel */}
       <ResizablePanel isOpen={showDetailPanel}>
-        <DetailPanel
-          selectedRow={selectedRow}
-          onClose={handleCloseDetailPanel}
-        />
+        <DetailPanel selectedRow={selectedRow} onClose={handleCloseDetailPanel} />
       </ResizablePanel>
     </div>
   );

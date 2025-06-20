@@ -9,16 +9,16 @@ import type {
 
 console.log('Devtron - Background script: Loaded successfully.');
 
-/* ------------------------------------------------------ */
-/**
- * This is used to keep the background script alive. More testing is needed to determine whether it is needed or not
- * since other KEEP_ALIVE methods are already implemented in the content script and panel script.
- * Code copied from: https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
- */
-const keepAlive = () => setInterval(chrome.runtime.getPlatformInfo, 20e3);
-chrome.runtime.onStartup.addListener(keepAlive);
-keepAlive();
-/* ------------------------------------------------------ */
+// /* ------------------------------------------------------ */
+// /**
+//  * This is used to keep the background script alive. More testing is needed to determine whether it is needed or not
+//  * since other KEEP_ALIVE methods are already implemented in the content script and panel script.
+//  * Code copied from: https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
+//  */
+// const keepAlive = () => setInterval(chrome.runtime.getPlatformInfo, 20e3);
+// chrome.runtime.onStartup.addListener(keepAlive);
+// keepAlive();
+// /* ------------------------------------------------------ */
 
 const MAX_EVENTS = 1000;
 const ipcEvents = new Denque<IpcEventDataIndexed>();

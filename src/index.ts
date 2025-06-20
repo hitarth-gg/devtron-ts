@@ -52,20 +52,29 @@ async function install() {
       // prettier-ignore
       // @ts-expect-error: '-ipc-message' is an internal event
       ses.on( '-ipc-message', (event: Electron.IpcMainEvent | Electron.IpcMainServiceWorkerEvent, channel: string, args: any[] ) => {
-        trackIpcEvent('main-to-renderer', channel, args, serviceWorker);
+        if(event.type === 'frame')
+        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+      else if(event.type === 'service-worker')
+        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
       console.log(`[DEVTRON MAIN SESSION] async message`, {event: event.type ,channel })
     });
 
       // prettier-ignore
       // @ts-expect-error: '-ipc-invoke' is an internal event
       ses.on( '-ipc-invoke', ( event: | Electron.IpcMainInvokeEvent | Electron.IpcMainServiceWorkerInvokeEvent, channel: string, args: any[]) => {
-    trackIpcEvent('main-to-renderer', channel, args, serviceWorker);
+        if(event.type === 'frame')
+        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+      else if(event.type === 'service-worker')
+        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
         console.log(`[DEVTRON MAIN SESSION] invoke message`, {event: event.type ,channel })
     });
       // prettier-ignore
       // @ts-expect-error: '-ipc-message-sync' is an internal event
       ses.on('-ipc-message-sync', (event: Electron.IpcMainEvent | Electron.IpcMainServiceWorkerEvent, channel: string, args: any[]) => {
-      trackIpcEvent('main-to-renderer', channel, args, serviceWorker);
+        if(event.type === 'frame')
+        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+      else if(event.type === 'service-worker')
+        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
         console.log(`[DEVTRON MAIN SESSION] sync message`, { event: event.type, channel });
     });
       /* ------------------------------------------------------ */
