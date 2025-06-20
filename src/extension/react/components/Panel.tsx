@@ -54,6 +54,7 @@ function Panel() {
     });
 
     const onMessage = (message: MessagePanel): void => {
+      console.log( `Devtron - Panel received message: ${JSON.stringify(message)}` );
       if (message.type === MSG_TYPE.RENDER_EVENT) {
         setEvents((prev) =>
           [...prev, message.event].slice(-MAX_EVENTS_TO_DISPLAY)

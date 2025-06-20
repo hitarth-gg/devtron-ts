@@ -7,6 +7,7 @@ const config: Configuration = {
   entry: {
     contentScript: './src/extension/content/index.ts',
     background: './src/extension/background/index.ts',
+    // backgroundPreload: './src/extension/background/preload.ts',
     devtools: './src/extension/devtools/devtools.ts',
     react: './src/extension/react/index.tsx',
   },

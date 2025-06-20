@@ -24,6 +24,13 @@ export default function DirectionBadge({ direction }: Props) {
           label: 'MTR',
           tooltip: 'Main to Renderer',
         };
+      case 'service-worker-to-main':
+        return {
+          colorClass: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+          Icon: ArrowDown,
+          label: 'SWM',
+          tooltip: 'Service Worker to Main',
+        };
       default:
         return {
           colorClass: 'bg-gray-100 text-gray-800 border-gray-400',

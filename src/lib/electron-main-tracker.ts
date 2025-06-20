@@ -1,66 +1,95 @@
+/* NOT IMPORTING THIS FILE ANYWHERE */
+
+
 /**
  * This file patches the Electron IPCMain methods to track events
  * and send them to the renderer process.
  * It is required in the main process of the Electron app.
  */
 
-import type { IpcMain, IpcMainEvent, IpcMainInvokeEvent } from 'electron';
-import type { Direction, IpcEventData } from '../types/shared';
+import type { DevtronOptions, Direction, IpcEventData } from '../types/shared';
 import { ipcMain, webContents } from 'electron';
 import { MSG_TYPE } from '../common/constants';
+import path from 'node:path';
 
-export function monitorMain() {
-  function trackIpcEvent(direction: Direction, channel: string, args: any[]) {
-    const eventData: IpcEventData = {
-      direction,
+function trackIpcEvent(direction: Direction, channel: string, args: any[], serviceWorker: any) {
+  const eventData: IpcEventData = {
+    direction,
+    channel,
+    args,
+    timestamp: Date.now(),
+  };
+
+  if (serviceWorker === null) {
+    console.error('Service worker for devtron is not registered yet. Cannot track IPC event.');
+    return;
+  }
+  try {
+    console.log('devtron-render-event');
+    console.log(serviceWorker);
+    console.log(serviceWorker.isDestroyed());
+    serviceWorker.send('devtron-render-event', eventData);
+  } catch (error) {
+    console.error('Failed to send IPC event to service worker:', error);
+  }
+}
+
+export async function monitorMain(options: DevtronOptions, devtron: Electron.Extension) {
+  const { session } = options;
+
+  // @ts-expect-error: __MODULE_TYPE__ is defined in webpack config, value is either 'esm' or 'cjs'
+  const moduleFolder = __MODULE_TYPE__;
+  const preloadFileName = `preload.${moduleFolder}`;
+
+  session.registerPreloadScript({
+    filePath: path.resolve(
+      'node_modules',
+      '@electron',
+      'devtron',
+      'dist',
+      moduleFolder,
+      preloadFileName
+    ),
+    type: 'service-worker',
+  });
+
+  const serviceWorker = await session.serviceWorkers.startWorkerForScope(devtron.url);
+  // serviceWorker.send('devtron-render-event', 'Hello');
+
+  // prettier-ignore
+  // @ts-expect-error: '-ipc-message' is an internal event
+  session.on( '-ipc-message', (event: Electron.IpcMainEvent | Electron.IpcMainServiceWorkerEvent, channel: string, args: any[] ) => {
+    console.log("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
+    const output = {
       channel,
       args,
-      timestamp: Date.now(),
-    };
+      event
+    }
+    console.log(`[DEVTRON MAIN SESSION] async message`, {event: event.type ,channel, args })
+    if (event.type === 'service-worker')
+    {
 
-    /**
-     * webContents.getAllWebContents() returns an array of all webContents instances.
-     * This will contain web contents for all windows, webviews, opened devtools, and devtools extension background pages.
-     * We send event to renderer process, which then sends it to the devtools.
-     */
-    webContents.getAllWebContents().forEach((wc) => {
-      wc.send(MSG_TYPE.RENDER_EVENT, eventData);
-    });
-  }
+      trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
+    }
+    else if (event.type === 'frame')
+      trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+  });
 
-  // Patch ipcMain.on
-  const originalOn = ipcMain.on.bind(ipcMain);
-  ipcMain.on = function (
-    channel: string,
-    listener: (event: IpcMainEvent, ...args: any[]) => void
-  ): IpcMain {
-    return originalOn(channel, (event, ...args) => {
-      trackIpcEvent('renderer-to-main', channel, args);
-      listener(event, ...args);
-    });
-  };
+  // prettier-ignore
+  // @ts-expect-error: '-ipc-invoke' is an internal event
+  session.on( '-ipc-invoke', ( event: | Electron.IpcMainInvokeEvent | Electron.IpcMainServiceWorkerInvokeEvent, channel: string, args: any[]) => {
+    if (event.type === 'service-worker')
+      trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
+    else if (event.type === 'frame')
+      trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+  });
 
-  // Patch ipcMain.once
-  const originalOnce = ipcMain.once.bind(ipcMain);
-  ipcMain.once = function (
-    channel: string,
-    listener: (event: IpcMainEvent, ...args: any[]) => void
-  ): IpcMain {
-    return originalOnce(channel, (event, ...args) => {
-      trackIpcEvent('renderer-to-main', channel, args);
-      listener(event, ...args);
-    });
-  };
-
-  // Patch ipcMain.handle
-  const originalHandle = ipcMain.handle.bind(ipcMain);
-  ipcMain.handle = function (
-    channel: string,
-    listener: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any> | any
-  ): void {
-    originalHandle(channel, async (event, ...args) => {
-      trackIpcEvent('renderer-to-main', channel, args);
-      return await listener(event, ...args);
-    });
-  };
+  // prettier-ignore
+  // @ts-expect-error: '-ipc-message-sync' is an internal event
+  session.on('-ipc-message-sync', (event: Electron.IpcMainEvent | Electron.IpcMainServiceWorkerEvent, channel: string, args: any[]) => {
+    if (event.type === 'service-worker')
+      trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
+    else if (event.type === 'frame')
+      trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+  });
 }

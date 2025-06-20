@@ -10,6 +10,9 @@ function ensurePort() {
       port = null;
     });
   }
+  else{
+    console.warn('Devtron - Content script: Port already exists');
+  }
 }
 function startKeepAlivePing() {
   setInterval(() => {

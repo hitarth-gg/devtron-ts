@@ -1,6 +1,21 @@
-/* ------------------ ELECTRON-PROCESS ------------------ */
-export type Direction = 'renderer-to-main' | 'main-to-renderer';
 import type { MSG_TYPE } from '../common/constants';
+/* ------------------ ELECTRON-PROCESS ------------------ */
+export interface DevtronOptions {
+  /**
+   * The Electron session into which the Devtron extension should be installed.
+   * Typically this is `session.defaultSession`, but can also be a custom session.
+   */
+  session: Electron.Session;
+
+  /**
+   * A display name for the session, used for display/logging purposes.
+   * If not provided, it defaults to 'unnamed'.
+   * @default 'unnamed'
+   */
+  sessionName?: string;
+}
+
+export type Direction = 'renderer-to-main' | 'main-to-renderer' | 'service-worker-to-main';
 
 export interface IpcEventData {
   direction: Direction;

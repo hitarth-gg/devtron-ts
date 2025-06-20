@@ -37,7 +37,8 @@
     "types": [
       "chrome",
       "node",
-      "webpack-env"
+      "webpack-env",
+      "electron"
     ]                                                    /* Specify type package names to be included without being referenced in a source file. */,
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
@@ -119,6 +120,6 @@
     "../../src/extension/**/*",
     "../../src/common/**/*",
     "../../src/types/**/*"
-  ]  ,
+, "../lib/preload.ts"  ]  ,
   // "exclude": []
 }

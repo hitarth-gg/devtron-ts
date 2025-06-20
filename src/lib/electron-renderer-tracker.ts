@@ -4,14 +4,14 @@ import { MSG_TYPE } from '../common/constants';
 
 type Direction = 'renderer-to-main' | 'main-to-renderer';
 
-interface IpcEvent {
+type IpcEvent = {
   timestamp: number;
   direction: Direction;
   channel: string;
   args: any[];
 }
 
-interface PanelMessage {
+type PanelMessage = {
   source: typeof MSG_TYPE.SEND_TO_PANEL;
   event: IpcEvent;
 }

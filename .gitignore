@@ -6,3 +6,4 @@ build
 todo.md
 
 **/*.tsbuildinfo
+electron-main-tracker copy.md
