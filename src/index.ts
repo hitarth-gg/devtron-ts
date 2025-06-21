@@ -19,7 +19,7 @@ function trackIpcEvent(direction: Direction, channel: string, args: any[], servi
   }
   serviceWorker.send('devtron-render-event', eventData);
 }
-async function install() {
+function install() {
   app.on('session-created', async (ses) => {
     try {
       /* ------------------------------------------------------ */

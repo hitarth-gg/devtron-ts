@@ -9,20 +9,17 @@ type IpcEvent = {
   direction: Direction;
   channel: string;
   args: any[];
-}
+};
 
 type PanelMessage = {
   source: typeof MSG_TYPE.SEND_TO_PANEL;
   event: IpcEvent;
-}
+};
 
 export function monitorRenderer(): void {
-  ipcRenderer.on(
-    MSG_TYPE.RENDER_EVENT,
-    (_event, data: { channel: string; args: any[] }) => {
-      track('renderer-to-main', data.channel, data.args);
-    }
-  );
+  // ipcRenderer.on(MSG_TYPE.RENDER_EVENT, (_event, data: { channel: string; args: any[] }) => {
+  //   track('renderer-to-main', data.channel, data.args);
+  // });
 
   const originalOn = ipcRenderer.on.bind(ipcRenderer);
   const originalOnce = ipcRenderer.once.bind(ipcRenderer);

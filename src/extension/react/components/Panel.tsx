@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type {
   ColDef,
@@ -12,24 +12,36 @@ import {
   ClientSideRowModelModule,
   RowSelectionModule,
   themeQuartz,
+  ScrollApiModule,
 } from 'ag-grid-community';
-import { Ban } from 'lucide-react';
+import { Ban, Lock, LockOpen, PanelBottom, PanelRight } from 'lucide-react';
 import { MSG_TYPE, PORT_NAME } from '../../../common/constants';
 import ResizablePanel from './ResizablePanel';
 import type { IpcEventDataIndexed, MessagePanel } from '../../../types/shared';
 import DirectionBadge from './DirectionBadge';
 import formatTimestamp from '../utils/formatTimestamp';
 import DetailPanel from './DetailPanel';
-
-ModuleRegistry.registerModules([ClientSideRowModelModule, RowSelectionModule, CellStyleModule]);
+import CircularButton from '../ui/CircularButton';
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  RowSelectionModule,
+  CellStyleModule,
+  ScrollApiModule,
+]);
+// import { events } from '../test_data/test_data';
 
 function Panel() {
   const MAX_EVENTS_TO_DISPLAY = 1000;
   const [events, setEvents] = useState<IpcEventDataIndexed[]>([]);
+  const [lockToBottom, setLockToBottom] = useState<boolean>(true);
+  const lockToBottomRef = useRef(true);
+
+  const gridRef = useRef<AgGridReact<IpcEventDataIndexed> | null>(null);
+
+  const [detailPanelPosition, setDetailPanelPosition] = useState<'right' | 'bottom'>('right');
   const portRef = useRef<chrome.runtime.Port | null>(null);
   // const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const clearEventsRef = useRef(() => {});
-
   /**
    * Comment out the useEffect below if you want to test the UI in dev mode on localhost
    * and use JSON data from test_data/test_data.js for testing.
@@ -52,7 +64,15 @@ function Panel() {
     const onMessage = (message: MessagePanel): void => {
       console.log(`Devtron - Panel received message: ${JSON.stringify(message)}`);
       if (message.type === MSG_TYPE.RENDER_EVENT) {
-        setEvents((prev) => [...prev, message.event].slice(-MAX_EVENTS_TO_DISPLAY));
+        setEvents((prev) => {
+          const updated = [...prev, message.event].slice(-MAX_EVENTS_TO_DISPLAY);
+          if (lockToBottomRef.current) {
+            requestAnimationFrame(() => {
+              gridRef.current?.api.ensureIndexVisible(updated.length - 1, 'bottom');
+            });
+          }
+          return updated;
+        });
       }
       if (message.type === MSG_TYPE.PONG) {
         // Do nothing // #EDIT or #REMOVE
@@ -79,6 +99,7 @@ function Panel() {
       port.onMessage.removeListener(onMessage);
       portRef.current = null;
       clearEventsRef.current = () => {};
+
       if (port) {
         port.disconnect();
       }
@@ -157,24 +178,59 @@ function Panel() {
   };
 
   return (
-    <div className="h-screen w-full flex border border-gray-300 rounded overflow-hidden bg-white">
+    <div
+      className={`h-screen w-full flex border border-gray-300 rounded overflow-hidden bg-white ${
+        detailPanelPosition === 'bottom' ? 'flex-col' : 'flex-row'
+      }`}
+    >
       <div className={`flex-1 flex flex-col ${showDetailPanel ? 'min-w-96' : ''}`}>
         {/* Header */}
-        <div className="px-3 py-2 bg-gray-100 border-b border-gray-300 justify-between text-sm font-medium flex items-center gap-2">
+        <div className="px-3 py-1 bg-gray-100 border-b border-gray-300 justify-between text-sm font-medium flex items-center gap-2">
           <div className="">Devtron</div>
-          <div>
-            <button
-              className="text-[#78797a] p-1 rounded-full hover:bg-gray-300"
-              onClick={() => clearEventsRef.current()}
+          <div className="flex gap-2">
+            <CircularButton
+              onClick={() => {
+                setDetailPanelPosition((prev) => (prev === 'right' ? 'bottom' : 'right'));
+              }}
+            >
+              {detailPanelPosition === 'right' ? (
+                <PanelRight strokeWidth={3} size={15} />
+              ) : (
+                <PanelBottom strokeWidth={3} size={15} />
+              )}
+            </CircularButton>
+
+            <CircularButton
+              active={lockToBottom}
+              onClick={() => {
+                setLockToBottom((prev) => {
+                  lockToBottomRef.current = !prev;
+                  return !prev;
+                });
+              }}
+            >
+              {lockToBottom ? (
+                <Lock strokeWidth={3} size={15} />
+              ) : (
+                <LockOpen strokeWidth={3} size={15} />
+              )}
+            </CircularButton>
+
+            <CircularButton
+              onClick={() => {
+                clearEventsRef.current();
+              }}
             >
               <Ban strokeWidth={3} size={15} />
-            </button>
+            </CircularButton>
           </div>
         </div>
 
         {/* Grid */}
         <div className="flex-1">
           <AgGridReact
+            ref={gridRef}
+            suppressScrollOnNewData={true}
             rowData={events}
             columnDefs={columnDefs}
             theme={themeQuartz.withParams({
@@ -190,11 +246,15 @@ function Panel() {
             rowHeight={29}
           />
         </div>
+        {/* <div ref={divRef} /> */}
       </div>
-
       {/* Details panel */}
-      <ResizablePanel isOpen={showDetailPanel}>
-        <DetailPanel selectedRow={selectedRow} onClose={handleCloseDetailPanel} />
+      <ResizablePanel isOpen={showDetailPanel} direction={detailPanelPosition}>
+        <DetailPanel
+          selectedRow={selectedRow}
+          onClose={handleCloseDetailPanel}
+          direction={detailPanelPosition}
+        />
       </ResizablePanel>
     </div>
   );
