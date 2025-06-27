@@ -19,6 +19,42 @@ function trackIpcEvent(direction: Direction, channel: string, args: any[], servi
   }
   serviceWorker.send('devtron-render-event', eventData);
 }
+
+function registerIpcListeners(ses: Electron.Session, serviceWorker: Electron.ServiceWorkerMain) {
+  {
+    /* ------------------------------------------------------ */
+    // prettier-ignore
+    // @ts-expect-error: '-ipc-message' is an internal event
+    ses.on( '-ipc-message', (event: Electron.IpcMainEvent | Electron.IpcMainServiceWorkerEvent, channel: string, args: any[] ) => {
+        if(event.type === 'frame')
+        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+      else if(event.type === 'service-worker')
+        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
+      console.log(`[DEVTRON MAIN SESSION] async message`, {event: event.type ,channel })
+    });
+
+    // prettier-ignore
+    // @ts-expect-error: '-ipc-invoke' is an internal event
+    ses.on( '-ipc-invoke', ( event: | Electron.IpcMainInvokeEvent | Electron.IpcMainServiceWorkerInvokeEvent, channel: string, args: any[]) => {
+        if(event.type === 'frame')
+        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+      else if(event.type === 'service-worker')
+        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
+        console.log(`[DEVTRON MAIN SESSION] invoke message`, {event: event.type ,channel })
+    });
+    // prettier-ignore
+    // @ts-expect-error: '-ipc-message-sync' is an internal event
+    ses.on('-ipc-message-sync', (event: Electron.IpcMainEvent | Electron.IpcMainServiceWorkerEvent, channel: string, args: any[]) => {
+        if(event.type === 'frame')
+        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
+      else if(event.type === 'service-worker')
+        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
+        console.log(`[DEVTRON MAIN SESSION] sync message`, { event: event.type, channel });
+    });
+    /* ------------------------------------------------------ */
+  }
+}
+
 function install() {
   app.on('session-created', async (ses) => {
     try {
@@ -44,41 +80,9 @@ function install() {
         path.resolve('node_modules', '@electron', 'devtron', 'dist', 'extension'),
         { allowFileAccess: true }
       );
-
       const serviceWorker = await ses.serviceWorkers.startWorkerForScope(devtron.url); // gives an error: [Error: Failed to start service worker.]
       serviceWorker.startTask();
-
-      /* ------------------------------------------------------ */
-      // prettier-ignore
-      // @ts-expect-error: '-ipc-message' is an internal event
-      ses.on( '-ipc-message', (event: Electron.IpcMainEvent | Electron.IpcMainServiceWorkerEvent, channel: string, args: any[] ) => {
-        if(event.type === 'frame')
-        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
-      else if(event.type === 'service-worker')
-        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
-      console.log(`[DEVTRON MAIN SESSION] async message`, {event: event.type ,channel })
-    });
-
-      // prettier-ignore
-      // @ts-expect-error: '-ipc-invoke' is an internal event
-      ses.on( '-ipc-invoke', ( event: | Electron.IpcMainInvokeEvent | Electron.IpcMainServiceWorkerInvokeEvent, channel: string, args: any[]) => {
-        if(event.type === 'frame')
-        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
-      else if(event.type === 'service-worker')
-        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
-        console.log(`[DEVTRON MAIN SESSION] invoke message`, {event: event.type ,channel })
-    });
-      // prettier-ignore
-      // @ts-expect-error: '-ipc-message-sync' is an internal event
-      ses.on('-ipc-message-sync', (event: Electron.IpcMainEvent | Electron.IpcMainServiceWorkerEvent, channel: string, args: any[]) => {
-        if(event.type === 'frame')
-        trackIpcEvent('renderer-to-main', channel, args, serviceWorker);
-      else if(event.type === 'service-worker')
-        trackIpcEvent('service-worker-to-main', channel, args, serviceWorker);
-        console.log(`[DEVTRON MAIN SESSION] sync message`, { event: event.type, channel });
-    });
-      /* ------------------------------------------------------ */
-
+      registerIpcListeners(ses, serviceWorker);
       console.log('Devtron: extension loaded successfully:', devtron.id);
     } catch (error) {
       console.error('Failed to load Devtron extension:', error);
