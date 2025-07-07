@@ -27,7 +27,7 @@ ipcRenderer.on('devtron-render-event', (event, data) => {
     // args: [data.direction],
 
     func: (data) => {
-      // @ts-ignore
+      // @ts-expect-error: addIpcEvent is available in background service worker
       addIpcEvent(data);
     },
     args: [data],
