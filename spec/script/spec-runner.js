@@ -1,15 +1,21 @@
-import { spawn, spawnSync } from 'node:child_process';
-import path from 'node:path';
+const { spawnSync } = require('child_process');
+const path = require('path');
+const electronPath = require('electron');
 
 async function main() {
   const runnerArgs = ['spec'];
 
-  const exe = await import('electron');
-  const { status, signal } = spawnSync(exe.default, runnerArgs, {
-    cwd: path.resolve(import.meta.dirname, '..', '..'),
+  const { status, signal } = spawnSync(electronPath, runnerArgs, {
+    cwd: path.resolve(__dirname, '..', '..'),
     stdio: 'inherit',
   });
+
+  if (status !== 0) {
+    console.error(`Electron exited with status ${status}, signal: ${signal}`);
+    process.exit(status ?? 1);
+  }
 }
+
 main()
   .then(() => {
     console.log('Electron process completed');

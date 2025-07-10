@@ -1,22 +1,23 @@
-import { app } from 'electron';
-import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-app.whenReady().then(async () => {
-  await import('ts-node/register');
-  await import('ts-node/esm');
-  const Mocha = (await import('mocha')).default;
+const { app } = require('electron');
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
+const Mocha = require('mocha');
 
+app.whenReady().then(async () => {
+  require('ts-node/register'); // ts-node hook for .ts files
   const mocha = new Mocha({
     timeout: 10000,
     ui: 'bdd',
   });
 
-  const testFile = path.join(import.meta.dirname, '..', 'spec', 'test.ts');
-  console.log(testFile);
+  const testFile = path.join(__dirname, '..', 'spec', 'test.ts');
+  console.log('📄 Test file:', testFile);
 
-  mocha.addFile(testFile); // <-- Add your test file
-  await import(pathToFileURL(testFile).href);
+  // Register the test file using require
+  // require(testFile);
+  mocha.addFile(testFile);
 
+  // Now run the tests
   await new Promise((resolve, reject) => {
     mocha.run((failures) => {
       if (failures > 0) {
@@ -24,7 +25,7 @@ app.whenReady().then(async () => {
         reject(new Error(`${failures} tests failed.`));
       } else {
         console.log('✅ All tests passed!');
-        resolve(undefined);
+        resolve();
       }
     });
   });
