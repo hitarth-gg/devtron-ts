@@ -23,7 +23,8 @@
     "dev": "webpack serve --config webpack.dev.config.ts",
     "lint:eslint": "npx eslint -c eslint.config.mjs",
     "lint": "npx tsc --noEmit && prettier . --check --experimental-cli",
-    "lint:fix": "npx prettier . --write --experimental-cli && npm run lint:eslint --fix"
+    "lint:fix": "npx prettier . --write --experimental-cli && npm run lint:eslint --fix",
+    "test": "node ./spec/script/spec-runner.js"
   },
   "author": "Hitarth Rajput",
   "license": "MIT",
@@ -41,11 +42,14 @@
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@tsconfig/node22": "^22.0.2",
+    "@types/chai": "^5.2.2",
     "@types/chrome": "^0.0.326",
+    "@types/mocha": "^10.0.10",
     "@types/node": "~22.10.7",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/webpack-env": "^1.18.8",
+    "chai": "^5.2.1",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
     "electron": "^36.5.0",
@@ -55,6 +59,7 @@
     "eslint-plugin-unicorn": "^59.0.1",
     "globals": "^16.2.0",
     "html-webpack-plugin": "^5.6.3",
+    "mocha": "^11.7.1",
     "postcss": "^8.5.4",
     "postcss-loader": "^8.1.1",
     "postcss-preset-env": "^10.2.1",
@@ -78,7 +83,8 @@
     "denque": "^2.1.0",
     "lucide-react": "^0.513.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "ts-node": "^10.9.2"
   },
   "files": [
     "dist/",
