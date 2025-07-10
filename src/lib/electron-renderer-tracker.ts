@@ -27,7 +27,7 @@ export function monitorRenderer(): void {
 
   ipcRenderer.on = function (
     channel: string,
-    listener: (event: IpcRendererEvent, ...args: any[]) => void
+    listener: (event: IpcRendererEvent, ...args: any[]) => void,
   ) {
     return originalOn(channel, (event, ...args) => {
       track('main-to-renderer', channel, args);
@@ -37,7 +37,7 @@ export function monitorRenderer(): void {
 
   ipcRenderer.once = function (
     channel: string,
-    listener: (event: IpcRendererEvent, ...args: any[]) => void
+    listener: (event: IpcRendererEvent, ...args: any[]) => void,
   ) {
     return originalOnce(channel, (event, ...args) => {
       track('main-to-renderer', channel, args);
@@ -47,7 +47,7 @@ export function monitorRenderer(): void {
 
   ipcRenderer.addListener = function (
     channel: string,
-    listener: (event: IpcRendererEvent, ...args: any[]) => void
+    listener: (event: IpcRendererEvent, ...args: any[]) => void,
   ) {
     return originalAddListener(channel, (event, ...args) => {
       track('main-to-renderer', channel, args);

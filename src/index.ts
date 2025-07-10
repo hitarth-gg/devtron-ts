@@ -64,7 +64,7 @@ async function startServiceWorker(ses: Electron.Session, extension: Electron.Ext
     console.log(`Failed to start Devtron service worker ${error_1}, trying again...`);
     try {
       const handleDetails = async (
-        details: Electron.ServiceWorkersRunningStatusChangedEventParams
+        details: Electron.ServiceWorkersRunningStatusChangedEventParams,
       ) => {
         const sw = ses.serviceWorkers.getWorkerFromVersionID(details.versionId);
         if (sw?.scope === extension.url) {
@@ -96,7 +96,7 @@ function install() {
           'devtron',
           'dist',
           moduleFolder,
-          preloadFileName
+          preloadFileName,
         ),
         type: 'service-worker',
       });
@@ -105,7 +105,7 @@ function install() {
 
       devtron = await ses.extensions.loadExtension(
         path.resolve('node_modules', '@electron', 'devtron', 'dist', 'extension'),
-        { allowFileAccess: true }
+        { allowFileAccess: true },
       );
       startServiceWorker(ses, devtron);
       console.log('Devtron: extension loaded successfully:', devtron.id);

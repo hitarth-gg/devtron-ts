@@ -5,7 +5,7 @@ const entryPoints = {
   index: './src/index.ts',
   'electron-main-tracker': './src/lib//electron-main-tracker.ts',
   'electron-renderer-tracker': './src/lib/electron-renderer-tracker.ts',
-  'preload': './src/lib/preload.ts',
+  preload: './src/lib/preload.ts',
 };
 
 const commonConfig: Configuration = {

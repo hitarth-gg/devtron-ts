@@ -51,14 +51,14 @@ function handlePanelMessage(message: MessagePanel): void {
       throw new Error(
         `Devtron - Background script: Unknown message type from panel: ${
           (message as MessagePanel).type
-        }`
+        }`,
       );
   }
 }
 
 function addIpcEvent(event: IpcEventData): void {
   console.log(
-    `Devtron - Background script: Adding IPC event: ${event.direction} - ${event.channel}`
+    `Devtron - Background script: Adding IPC event: ${event.direction} - ${event.channel}`,
   );
   console.log(JSON.stringify(event));
 

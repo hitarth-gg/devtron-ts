@@ -1,6 +1,5 @@
 /* NOT IMPORTING THIS FILE ANYWHERE */
 
-
 /**
  * This file patches the Electron IPCMain methods to track events
  * and send them to the renderer process.
@@ -48,7 +47,7 @@ export async function monitorMain(options: DevtronOptions, devtron: Electron.Ext
       'devtron',
       'dist',
       moduleFolder,
-      preloadFileName
+      preloadFileName,
     ),
     type: 'service-worker',
   });
