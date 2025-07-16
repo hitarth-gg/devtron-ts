@@ -1,6 +1,10 @@
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 const electronPath = require('electron');
+require('colors')
+
+const pass = '[PASS]'.green
+const fail = '[FAIL]'.red
 
 async function main() {
   const runnerArgs = ['spec'];

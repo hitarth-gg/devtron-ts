@@ -117,11 +117,9 @@ async function install() {
       // register service worker preload script
       // @ts-expect-error: __MODULE_TYPE__ is defined in webpack.node.config.ts, value is either 'mjs' or 'cjs'
       const moduleType = __MODULE_TYPE__;
-      console.log(`Installing Devtron with module type: ${moduleType}`);
 
       const dirname = __dirname;
       const filePath = createRequire(dirname).resolve('@electron/devtron/service-worker-preload');
-      console.log(`Using preload script at: ${filePath}`);
 
       ses.registerPreloadScript({
         filePath,
@@ -129,15 +127,8 @@ async function install() {
         id: 'devtron-preload',
       });
 
-      // filepath =  D:\Personal Projects\devtron-ts\dist\cjs\service-worker-preload.cjs
-      // go to node_modules/@electron/devtron/dist/extension
-
       const extensionPath = path.resolve(filePath, '..', '..', 'extension');
-      // load extension
-      devtron = await ses.extensions.loadExtension(
-        extensionPath,
-        { allowFileAccess: true },
-      );
+      devtron = await ses.extensions.loadExtension(extensionPath, { allowFileAccess: true });
       await startServiceWorker(ses, devtron);
       console.log('Devtron loaded successfully');
     } catch (error) {

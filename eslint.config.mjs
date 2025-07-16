@@ -42,7 +42,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['spec/**/*.{js,cjs}'],
+    files: ['spec/**/*.{js,ts}'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
     },
