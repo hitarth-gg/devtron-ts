@@ -1,7 +1,6 @@
 {
-  "extension": ["ts"],
-  "spec": "tests/**/*.spec.ts",
-  "require": ["ts-node/register"],
-  "node-option": ["loader=ts-node/esm"],
-  "recursive": true
+  "extensions": ["ts"],
+  "spec": ["./spec/**/*.ts"],
+  "node-options": ["--import=tsx", "--tsconfig=spec/tsconfig.json"],
+  "require": "ts-node/register"
 }
