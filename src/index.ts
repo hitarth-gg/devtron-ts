@@ -1,8 +1,10 @@
-import { app } from 'electron';
+import { app, session } from 'electron';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import type { Direction, IpcEventData } from './types/shared';
 
 let isInstalled = false;
+let isInstalledToDefaultSession = false;
 
 /**
  * sends captured IPC events to the service-worker preload script
@@ -102,42 +104,51 @@ async function startServiceWorker(ses: Electron.Session, extension: Electron.Ext
   }
 }
 
-function install() {
-  if (isInstalled) {
-    return;
-  }
+async function install() {
+  if (isInstalled) return;
   isInstalled = true;
 
-  app.on('session-created', async (ses) => {
+  const installToSession = async (ses: Electron.Session) => {
+    if (ses === session.defaultSession && isInstalledToDefaultSession) return;
+    if (ses === session.defaultSession) isInstalledToDefaultSession = true;
+
     let devtron: Electron.Extension;
     try {
       // register service worker preload script
-      // @ts-expect-error: __MODULE_TYPE__ is defined in webpack config, value is either 'esm' or 'cjs'
+      // @ts-expect-error: __MODULE_TYPE__ is defined in webpack.node.config.ts, value is either 'mjs' or 'cjs'
       const moduleType = __MODULE_TYPE__;
-      const preloadFileName = `service-worker-preload.${moduleType}`;
+      console.log(`Installing Devtron with module type: ${moduleType}`);
+
+      const dirname = __dirname;
+      const filePath = createRequire(dirname).resolve('@electron/devtron/service-worker-preload');
+      console.log(`Using preload script at: ${filePath}`);
+
       ses.registerPreloadScript({
-        filePath: path.resolve(
-          'node_modules',
-          '@electron',
-          'devtron',
-          'dist',
-          moduleType,
-          preloadFileName,
-        ),
+        filePath,
         type: 'service-worker',
+        id: 'devtron-preload',
       });
 
+      // filepath =  D:\Personal Projects\devtron-ts\dist\cjs\service-worker-preload.cjs
+      // go to node_modules/@electron/devtron/dist/extension
+
+      const extensionPath = path.resolve(filePath, '..', '..', 'extension');
       // load extension
       devtron = await ses.extensions.loadExtension(
-        path.resolve('node_modules', '@electron', 'devtron', 'dist', 'extension'),
+        extensionPath,
         { allowFileAccess: true },
       );
-      startServiceWorker(ses, devtron);
+      await startServiceWorker(ses, devtron);
       console.log('Devtron loaded successfully');
     } catch (error) {
       console.error('Failed to load Devtron:', error);
     }
-  });
+  };
+
+  app.on('session-created', installToSession);
+
+  // explicitly install Devtron to the defaultSession in case the app is already ready
+  if (!isInstalledToDefaultSession && app.isReady()) await installToSession(session.defaultSession);
 }
 
 export const devtron = {

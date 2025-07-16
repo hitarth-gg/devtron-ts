@@ -9,10 +9,7 @@
     "declaration": false,
     "sourceMap": false,
     "outDir": "./dist",
-    "forceConsistentCasingInFileNames": true,
-    // "esModuleInterop": true,
-    // "allowImportingTsExtensions": true,
-    // "noEmit": true
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["./global.d.ts", "./src/**/*"]
 }

@@ -10,6 +10,12 @@ const entryPoints = {
 const commonConfig: Configuration = {
   entry: entryPoints,
   module: {
+    parser: {
+      javascript: {
+        importMeta: false,
+        createRequire: false,
+      },
+    },
     rules: [
       {
         test: /\.(ts|tsx)$/,
@@ -46,6 +52,7 @@ const esmConfig: Configuration = {
   plugins: [
     new DefinePlugin({
       __MODULE_TYPE__: JSON.stringify('mjs'),
+      __dirname: 'import.meta.dirname',
     }),
   ],
 };

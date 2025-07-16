@@ -1,5 +1,0 @@
-{
-  "extensions": ["ts"],
-  "node-options": ["--import=tsx"],
-  "loader": "ts-node/esm"
-}

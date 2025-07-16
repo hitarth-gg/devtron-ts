@@ -4,7 +4,8 @@ const electronPath = require('electron');
 
 async function main() {
   const runnerArgs = ['spec'];
-
+  console.log(`Running Electron with args: ${path.resolve(__dirname, '..', '..')}`);
+  
   const { status, signal } = spawnSync(electronPath, runnerArgs, {
     cwd: path.resolve(__dirname, '..', '..'),
     stdio: 'inherit',
